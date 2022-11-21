@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="en" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CTF-Web  上传文件题 - Hexo</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Fechin,"> 
+    <meta name="description" content="CTF之Web 文件上传本题打开后发现是一道文件上传题，我们打开开发者工具查看源码，发现前端代码有设置上传条件(只有.jpg/.png/.gif文件才可以上传)
+
+我们要注入一句话木马：
+
+1&amp;lt,"> 
+    <meta name="author" content="John Doe"> 
+    <link rel="alternative" href="atom.xml" title="Hexo" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.png"> 
+    
+    
+    
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:title" content="CTF-Web  上传文件题 - Hexo"/>
+    <meta name="twitter:description" content="CTF之Web 文件上传本题打开后发现是一道文件上传题，我们打开开发者工具查看源码，发现前端代码有设置上传条件(只有.jpg/.png/.gif文件才可以上传)
+
+我们要注入一句话木马：
+
+1&amp;lt,"/>
+    
+    
+    
+    
+    <meta property="og:site_name" content="Hexo"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="CTF-Web  上传文件题 - Hexo"/>
+    <meta property="og:description" content="CTF之Web 文件上传本题打开后发现是一道文件上传题，我们打开开发者工具查看源码，发现前端代码有设置上传条件(只有.jpg/.png/.gif文件才可以上传)
+
+我们要注入一句话木马：
+
+1&amp;lt,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+    <script>window.searchDbPath = "/search.xml";</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Hexo</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="http://example.com"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">CTF-Web  上传文件题</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">CTF-Web  上传文件题</h1>
+        <div class="stuff">
+            <span>十一月 19, 2022</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Burpsuite/" rel="tag">Burpsuite</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/CTF-Web/" rel="tag">CTF-Web</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E8%9A%81%E5%89%91/" rel="tag">蚁剑</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h2 id="CTF之Web-文件上传"><a href="#CTF之Web-文件上传" class="headerlink" title="CTF之Web 文件上传"></a>CTF之Web 文件上传</h2><p>本题打开后发现是一道文件上传题，我们打开开发者工具查看源码，发现前端代码有设置上传条件(只有.jpg/.png/.gif文件才可以上传)</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119180732865.png" alt="image-20221119180732865"></p>
+<p>我们要注入一句话木马：</p>
+<blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php @<span class="built_in">eval</span>($_POST[value]);?&gt;     //value是之后我们蚁剑添加数据时的连接密码，可以自己随意命名</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>但是由于客户端有限制，不可以直接上传.php文件，所以我们将木马文件先改成.jpg文件进行提交。</p>
+<p>使用Firefox浏览器，开始代理模式，使用burpsuite来捕获数据。</p>
+<p>在Firefox上传文件后，我们在burpsuite中捕获到的如下：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119182815150.png" alt="image-20221119182815150"></p>
+<p>我们最终是要注入一句话代码(格式是.php)，所以将<strong>filename=”1.png”<strong>改成</strong>filename=”1.php”</strong>,但是由于无法去上传.php文件，所以我们要进行<strong>文件欺骗</strong></p>
+<p>在截获到的数据中，在一句话代码前添加  <strong>GIF89a</strong> ,代表的是GIF文件欺骗：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183243688.png" alt="image-20221119183243688"></p>
+<p>修改好之后，我们对数据放行，返回Firefox发现上传文件成功，显示出了路径：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183413940.png" alt="image-20221119183413940"></p>
+<p>我们将ip和文件相对路径拼接，在蚁剑中添加数据，路径即为拼接好的路径，连接密码为一句话木马中的value（这里是1）</p>
+<p>测试连接，连接成功：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183723954.png" alt="image-20221119183723954"></p>
+<p>添加到数据中后我们点击打开，得到文件列表，我们向上查找，查找到最外层发现有一个flag文件：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183740088.png" alt="image-20221119183740088"></p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183850100.png" alt="image-20221119183850100"></p>
+<p>点开后我们就得到了题目的flag:</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119184009332.png" alt="image-20221119184009332"></p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title="0" data-url="http://link.hhtjim.com/163/425570952.mp3"></li>
+                        
+                    
+                        
+                            <li title="1" data-url="http://link.hhtjim.com/163/425570952.mp3"></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="false"
+        data-ae="false"
+        data-ci=""
+        data-cs=""
+        data-r=""
+        data-o=""
+        data-a=""
+        data-d="false"
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class="side">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CTF%E4%B9%8BWeb-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">1.</span> <span class="toc-text">CTF之Web 文件上传</span></a></li></ol>
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

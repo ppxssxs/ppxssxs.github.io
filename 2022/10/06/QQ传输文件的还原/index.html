@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QQ传输文件的换原 - Hexo</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Fechin,"> 
+    <meta name="description" content="本篇文章主要是复现了QQ传输文件的换原：手机端向电脑传输一个文件，然后使用wireshark抓取数据包，通过winhex来分析该文件并实现换原。
+前提条件移动端与手机端需连接同一热点(在同一子网下),"> 
+    <meta name="author" content="John Doe"> 
+    <link rel="alternative" href="atom.xml" title="Hexo" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.png"> 
+    
+    
+    
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:title" content="QQ传输文件的换原 - Hexo"/>
+    <meta name="twitter:description" content="本篇文章主要是复现了QQ传输文件的换原：手机端向电脑传输一个文件，然后使用wireshark抓取数据包，通过winhex来分析该文件并实现换原。
+前提条件移动端与手机端需连接同一热点(在同一子网下),"/>
+    
+    
+    
+    
+    <meta property="og:site_name" content="Hexo"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="QQ传输文件的换原 - Hexo"/>
+    <meta property="og:description" content="本篇文章主要是复现了QQ传输文件的换原：手机端向电脑传输一个文件，然后使用wireshark抓取数据包，通过winhex来分析该文件并实现换原。
+前提条件移动端与手机端需连接同一热点(在同一子网下),"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+    <script>window.searchDbPath = "/search.xml";</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Hexo</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="http://example.com"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">QQ传输文件的换原</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">QQ传输文件的换原</h1>
+        <div class="stuff">
+            <span>十月 06, 2022</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/WinHex/" rel="tag">WinHex</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/WireShark/" rel="tag">WireShark</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>本篇文章主要是复现了QQ传输文件的换原：手机端向电脑传输一个文件，然后使用wireshark抓取数据包，通过winhex来分析该文件并实现换原。</p>
+<h1 id="前提条件"><a href="#前提条件" class="headerlink" title="前提条件"></a>前提条件</h1><p>移动端与手机端需连接同一热点(在同一子网下)，登录同一个QQ，移动端向电脑端发送一个文件(这里使用照片为例)。</p>
+<h1 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h1><h2 id="一、知道数据源头-数据去向"><a href="#一、知道数据源头-数据去向" class="headerlink" title="一、知道数据源头/数据去向"></a>一、知道数据源头/数据去向</h2><p>知道数据源头和数据去向能方便我们去抓取数据包，手机端发送数据给电脑，所以数据源头是我们手机，那我们就需要知道手机连接该网络下的ip地址。通过手机的WLAN设置里可以查看到手机在该网络下的ip地址：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118223548852.png" alt="image-20221118223548852"></p>
+<p>查询得到手机在该网络下的ip地址<strong>10.33.33.145</strong>，这就是数据源头(ip.src)，而数据去向就是我们电脑端(ip.dst)的ip地址。</p>
+<h2 id="二、通过wireshark进行抓包"><a href="#二、通过wireshark进行抓包" class="headerlink" title="二、通过wireshark进行抓包"></a>二、通过wireshark进行抓包</h2><p>我们在wireshark中设置过滤条件为：</p>
+<blockquote>
+<p>ip.addr == 10.33.33.145</p>
+</blockquote>
+<p>表示的是对源或者目的地址为10.33.33.145的包的过滤，即抓取满足源或者目的地址的ip地址是10.33.33.145的包。</p>
+<p>选择过滤条件后开始，手机端向电脑端通过QQ发送一个文件：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118223845029.png" alt="image-20221118223845029"></p>
+<p>通过wireshark捕获到一个http请求数据包，我们对这个数据部进行tcp流追踪：</p>
+<blockquote>
+<p>鼠标右键 -&gt; 追踪流 -&gt; TCP流</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118224204721.png" alt="image-20221118224204721"></p>
+<p>在得到的数据中，选择手机端向客户端发送的(10.33.33.145:8083-&gt;10.33.55.156:56886)，然后选择以原始数据来展现数据。</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118224406029.png" alt="image-20221118224406029"></p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118224427116.png" alt="image-20221118224427116"></p>
+<p>得到如下手机端向电脑端发送的数据：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118224718945.png" alt="image-20221118224718945"></p>
+<p>通过wireshark数据的分析，我们可以看出手机端向电脑端发送的文件是.png文件(文章中没有体现出来)，于是我们将此段数据保存到电脑中，并命名为test.png（保证是.png后缀即可）。</p>
+<blockquote>
+<p>另存为 -&gt; 文件命名 -&gt; 保存</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118225351985.png" alt="image-20221118225351985"></p>
+<p>之后我们直接打开test.png文件，发现无法正常打开。分析可能是在wireshark保存的数据流有问题(QQ传输文件的机制，可能对信息进行了加密)，于是我们使用winhex打开该文件进行分析。</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118225606235.png" alt="image-20221118225606235"></p>
+<h2 id="三、winhex进行数据分析"><a href="#三、winhex进行数据分析" class="headerlink" title="三、winhex进行数据分析"></a>三、winhex进行数据分析</h2><blockquote>
+<p>winhex是在Windows下执行的<strong>十六进制</strong>编辑软件，此软件功能很强大，有完好的分区管理功能和文件管理功能。能自己主动分析分区链和文件簇链。能对硬盘进行不同方式不同程度的备份。甚至克隆整个硬盘；它可以编辑不论什么一种文件类型的二进制内容（用十六进制显示）其磁盘编辑器可以编辑物理磁盘或逻辑磁盘的随意扇区。是<strong>手工恢复数据</strong>的首选工具软件。</p>
+</blockquote>
+<p>我们使用winhex打开test.png文件，得到如下：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118225823402.png" alt="image-20221118225823402"></p>
+<p>发现打开的test.png十六进制文件是 <strong>48 54 54 50</strong> 开头，我们通过查询发现，png格式的16进制文件的开头为<strong>89 50 4E 47</strong>，所以这里的文件格式发送了错误。</p>
+<p>我们在该十六进制文件中找到<strong>89 50 4E 47</strong>的位置，将它前面所有的十六进制数都删除掉：</p>
+<blockquote>
+<p>选中数据 -&gt; 鼠标右键 -&gt; 编辑 -&gt; 移除</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118230351357.png" alt="image-20221118230351357"></p>
+<p>这样就得到以<strong>89 50 4E 47</strong>开头的十六进制文件了，正好符合.png文件的格式。</p>
+<p>我们把它重新保存</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118230659643.png" alt="image-20221118230659643"></p>
+<p>发现可以正常打开了，而且内容与原发送内容一致，说明使用成功！</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118230724439.png" alt="image-20221118230724439"></p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title="0" data-url="http://link.hhtjim.com/163/425570952.mp3"></li>
+                        
+                    
+                        
+                            <li title="1" data-url="http://link.hhtjim.com/163/425570952.mp3"></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="false"
+        data-ae="false"
+        data-ci=""
+        data-cs=""
+        data-r=""
+        data-o=""
+        data-a=""
+        data-d="false"
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class="side">
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E6%8F%90%E6%9D%A1%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">前提条件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%81%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%9F%A5%E9%81%93%E6%95%B0%E6%8D%AE%E6%BA%90%E5%A4%B4-%E6%95%B0%E6%8D%AE%E5%8E%BB%E5%90%91"><span class="toc-number">2.1.</span> <span class="toc-text">一、知道数据源头&#x2F;数据去向</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%80%9A%E8%BF%87wireshark%E8%BF%9B%E8%A1%8C%E6%8A%93%E5%8C%85"><span class="toc-number">2.2.</span> <span class="toc-text">二、通过wireshark进行抓包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81winhex%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90"><span class="toc-number">2.3.</span> <span class="toc-text">三、winhex进行数据分析</span></a></li></ol></li></ol>
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

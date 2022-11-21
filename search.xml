@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>CTF-Web  给出页面直接查看源码</title>
+    <url>/2022/11/19/CTF%E4%B9%8BWeb%E6%9F%A5%E7%9C%8B%E6%BA%90%E7%A0%81/</url>
+    <content><![CDATA[<h2 id="CTF之Web查看源码"><a href="#CTF之Web查看源码" class="headerlink" title="CTF之Web查看源码"></a>CTF之Web查看源码</h2><p>登录题目给出的网站后，展示的页面如下：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119175639118.png" alt="image-20221119175639118"></p>
+<p>根据所展示的页面，找不到可用的信息，于是我们首先打开网站开发者工具来查看源码</p>
+<blockquote>
+<p>F12 -&gt; 元素</p>
+</blockquote>
+<p>得到如下：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119175829528.png" alt="image-20221119175829528"></p>
+<p>根据注释的提示，可判断出flag大概率是藏在代码中，如果从头看到尾比较慢，我们可用直接在代码中搜索flag：</p>
+<blockquote>
+<p>ctrl + F</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119180119798.png" alt="image-20221119180119798"></p>
+<p>查看后发现flag藏在JS代码中，我们复制后进行提交，提交成功！</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+      </categories>
+      <tags>
+        <tag>CTF-Web</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CTF-Web  上传文件题</title>
+    <url>/2022/11/19/CTF%E4%B9%8BWeb%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/</url>
+    <content><![CDATA[<h2 id="CTF之Web-文件上传"><a href="#CTF之Web-文件上传" class="headerlink" title="CTF之Web 文件上传"></a>CTF之Web 文件上传</h2><p>本题打开后发现是一道文件上传题，我们打开开发者工具查看源码，发现前端代码有设置上传条件(只有.jpg/.png/.gif文件才可以上传)</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119180732865.png" alt="image-20221119180732865"></p>
+<p>我们要注入一句话木马：</p>
+<blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">&lt;?php @<span class="built_in">eval</span>($_POST[value]);?&gt;     //value是之后我们蚁剑添加数据时的连接密码，可以自己随意命名</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>但是由于客户端有限制，不可以直接上传.php文件，所以我们将木马文件先改成.jpg文件进行提交。</p>
+<p>使用Firefox浏览器，开始代理模式，使用burpsuite来捕获数据。</p>
+<p>在Firefox上传文件后，我们在burpsuite中捕获到的如下：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119182815150.png" alt="image-20221119182815150"></p>
+<p>我们最终是要注入一句话代码(格式是.php)，所以将<strong>filename=”1.png”<strong>改成</strong>filename=”1.php”</strong>,但是由于无法去上传.php文件，所以我们要进行<strong>文件欺骗</strong></p>
+<p>在截获到的数据中，在一句话代码前添加  <strong>GIF89a</strong> ,代表的是GIF文件欺骗：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183243688.png" alt="image-20221119183243688"></p>
+<p>修改好之后，我们对数据放行，返回Firefox发现上传文件成功，显示出了路径：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183413940.png" alt="image-20221119183413940"></p>
+<p>我们将ip和文件相对路径拼接，在蚁剑中添加数据，路径即为拼接好的路径，连接密码为一句话木马中的value（这里是1）</p>
+<p>测试连接，连接成功：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183723954.png" alt="image-20221119183723954"></p>
+<p>添加到数据中后我们点击打开，得到文件列表，我们向上查找，查找到最外层发现有一个flag文件：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183740088.png" alt="image-20221119183740088"></p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119183850100.png" alt="image-20221119183850100"></p>
+<p>点开后我们就得到了题目的flag:</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221119184009332.png" alt="image-20221119184009332"></p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+      </categories>
+      <tags>
+        <tag>CTF-Web</tag>
+        <tag>Burpsuite</tag>
+        <tag>蚁剑</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MarkDown的基本语法与使用</title>
+    <url>/2022/10/14/MarkDown%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<p>这篇文章将大概地你如何去使用一些Markdown语法以及快捷键，帮助你取快速地建立Markdown文档。</p>
+<h1 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h1><h2 id="这是二级标题"><a href="#这是二级标题" class="headerlink" title="这是二级标题"></a>这是二级标题</h2><h3 id="这是三级标题"><a href="#这是三级标题" class="headerlink" title="这是三级标题"></a>这是三级标题</h3><h4 id="这是四级标题"><a href="#这是四级标题" class="headerlink" title="这是四级标题"></a>这是四级标题</h4><p>快速定义标题大小： </p>
+<ol>
+<li># + 空格  + 回车   <strong>多少级标题就使用多少个空格</strong></li>
+<li>ctrl + 数字             <strong>数字是多少就是几级标题</strong></li>
+</ol>
+<h1 id="字体"><a href="#字体" class="headerlink" title="字体"></a>字体</h1><ul>
+<li><p>加粗 </p>
+<p><strong>this is Bold.</strong>      </p>
+<p>在内容的前后各添加两个星号（asterisks）或下划线（underscores）。    </p>
+<p>**  内容 **  或 __ 内容 __      </p>
+<p>Markdown 应用程序在如何处理单词或短语中间的下划线上并不一致。为兼容考虑，在单词或短语中间部分加粗的话，请使用星号（asterisks）。</p>
+<blockquote>
+<p>快捷键：ctrl+B</p>
+</blockquote>
+</li>
+<li><p> 斜体</p>
+</li>
+</ul>
+<p>  <em>this is Italic.</em></p>
+<p>  要用斜体显示文本，请在内容前后添加一个星号（asterisk）或下划线（underscore）。    </p>
+<p>  *内容*  或  _内容_    </p>
+<p>  要斜体突出单词的中间部分，请在字母前后各添加一个星号，中间不要带空格。</p>
+<blockquote>
+<p>快捷键：ctrl + I</p>
+</blockquote>
+<ul>
+<li><p>粗斜体</p>
+<p><em><strong>this is  Bold and Italic</strong></em></p>
+<p>要同时用粗体和斜体突出显示文本，请在内容的前后各添加三个星号或下划线。</p>
+<p>***内容*** 或 ___ 内容 ___</p>
+<p>要加粗并用斜体显示单词或短语的中间部分，请在要突出显示的部分前后各添加三个星号，中间不要带空格。</p>
+<blockquote>
+<p>快捷键：ctrl I  +  B</p>
+</blockquote>
+</li>
+<li><p>删除线</p>
+<p><del>这是删除线</del></p>
+<p>若要使文本添加删除线，请在内容前后使用两个波浪号<code>~~</code>。</p>
+<p>~~ 内容 ~~</p>
+<blockquote>
+<p>快捷键：Alt+Shift+5</p>
+</blockquote>
+</li>
+<li><p>下划线</p>
+<p><u>这是下划线</u></p>
+<p>&lt;/u&gt;内容&lt;/u&gt;</p>
+<blockquote>
+<p>快捷键：ctrl + U</p>
+</blockquote>
+</li>
+</ul>
+<p>​    </p>
+<h1 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h1><blockquote>
+<p>这里是引用。</p>
+</blockquote>
+<h2 id="普通块引用"><a href="#普通块引用" class="headerlink" title="普通块引用"></a>普通块引用</h2><p>要创建块引用，请在段落前添加一个 <code>&gt;</code> 符号。</p>
+<p><code>&gt;   Dorothy followed her through many of the beautiful rooms in her castle.</code></p>
+<p>渲染效果如下：</p>
+<blockquote>
+<p> Dorothy followed her through many of the beautiful rooms in her castle.</p>
+</blockquote>
+<h2 id="嵌套块引用"><a href="#嵌套块引用" class="headerlink" title="嵌套块引用"></a>嵌套块引用</h2><p>块引用可以嵌套。在要嵌套的段落前添加一个 <code>&gt;&gt;</code> 符号。</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">&gt; Dorothy followed her through many of the beautiful rooms in her castle.</span><br><span class="line">&gt;</span><br><span class="line">&gt;&gt; The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.</span><br></pre></td></tr></table></figure>
+
+<p>渲染效果如下：</p>
+<blockquote>
+<p>Dorothy followed her through many of the beautiful rooms in her castle.</p>
+<blockquote>
+<p>The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.</p>
+</blockquote>
+</blockquote>
+<h2 id="带有其它元素的块引用"><a href="#带有其它元素的块引用" class="headerlink" title="带有其它元素的块引用"></a>带有其它元素的块引用</h2><p>块引用可以包含其他 Markdown 格式的元素。并非所有元素都可以使用，你需要进行实验以查看哪些元素有效。</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">&gt; #### The quarterly results look great!</span><br><span class="line">&gt;</span><br><span class="line">&gt; - Revenue was off the chart.</span><br><span class="line">&gt; 1. Profits were higher than ever.</span><br><span class="line">&gt;</span><br><span class="line">&gt;  *Everything* is going according to **plan**.</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<h4 id="The-quarterly-results-look-great"><a href="#The-quarterly-results-look-great" class="headerlink" title="The quarterly results look great!"></a>The quarterly results look great!</h4><ul>
+<li>Revenue was off the chart. </li>
+</ul>
+<ol>
+<li> Profits were higher than ever.</li>
+</ol>
+<p> <em>Everything</em> is going according to <strong>plan</strong>.</p>
+</blockquote>
+<h1 id="分割线"><a href="#分割线" class="headerlink" title="分割线"></a>分割线</h1><hr>
+<hr>
+<hr>
+<p>要创建分隔线，请在单独一行上使用三个或多个星号 (<code>***</code>)、破折号 (<code>---</code>) 或下划线 (<code>___</code>) ，（渲染效果都一样）并且不能包含其他内容。</p>
+<p>为了兼容性，请在分隔线的前后均添加空白行。(语法会自动加入)</p>
+<h1 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h1><p>链接文本放在中括号内，链接地址放在后面的括号中，链接title可选。</p>
+<p>超链接Markdown语法代码：<code>[超链接显示名](超链接地址 &quot;超链接title&quot;)</code></p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">这是一个链接 [Markdown语法](https://markdown.com.cn)。</span><br></pre></td></tr></table></figure>
+
+<p>渲染效果如下：</p>
+<p>这是一个链接 <a href="https://markdown.com.cn/">Markdown语法</a></p>
+<h2 id="给链接添加title语法"><a href="#给链接添加title语法" class="headerlink" title="给链接添加title语法"></a>给链接添加title语法</h2><p>链接title是当鼠标悬停在链接上时会出现的文字，这个title是可选的，它放在圆括号中链接地址后面，跟链接地址之间以空格分隔。</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">这是一个链接 [Markdown语法](https://markdown.com.cn &quot;最好的markdown教程&quot;)。</span><br></pre></td></tr></table></figure>
+
+<p>渲染效果如下：</p>
+<p>这是一个链接 <a href="https://markdown.com.cn/" title="最好的markdown教程">markdown语法</a></p>
+<h1 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h1><p>要添加图像，请使用感叹号 (<code>!</code>), 然后在方括号增加替代文本，图片链接放在圆括号里，括号里的链接后可以增加一个可选的图片标题文本。</p>
+<p>插入图片Markdown语法代码：<code>![图片alt](图片链接 &quot;图片title&quot;)</code>。</p>
+<blockquote>
+<p>快捷键：ctrl + shift + i</p>
+</blockquote>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">![这是图片](https://markdown.com.cn/assets/img/philly-magic-garden.9c0b4415.jpg &quot;Magic Gardens&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://markdown.com.cn/assets/img/philly-magic-garden.9c0b4415.jpg" alt="这是图片" title="Magic Gardens"></p>
+<h2 id="链接图片"><a href="#链接图片" class="headerlink" title="链接图片"></a>链接图片</h2><p>给图片增加链接，请将图像的Markdown 括在方括号中，然后将链接添加在圆括号中。（当然在typora是不允许打开新页面的）</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[![沙漠中的岩石图片](https://markdown.com.cn/assets/img/shiprock.c3b9a023.jpg &quot;Shiprock&quot;)](https://markdown.com.cn)</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://markdown.com.cn/"><img src="https://markdown.com.cn/assets/img/shiprock.c3b9a023.jpg" alt="沙漠中的图片" title="Shiprock"></a></p>
+<p>路径可以是本地的，也可以是网络上的。</p>
+<h1 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h1><h2 id="有序列表"><a href="#有序列表" class="headerlink" title="有序列表"></a>有序列表</h2><ol>
+<li><p>A</p>
+</li>
+<li><p>B</p>
+</li>
+<li><p>C</p>
+</li>
+</ol>
+<blockquote>
+<p>数字.+空格</p>
+</blockquote>
+<h2 id="无序列表"><a href="#无序列表" class="headerlink" title="无序列表"></a>无序列表</h2><ul>
+<li>A</li>
+<li>B</li>
+</ul>
+<blockquote>
+<p>-  + 空格</p>
+</blockquote>
+<h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><p>要将单词或短语表示为代码，请将其包裹在反引号 (```) 中。</p>
+<p><code>hello world</code></p>
+<blockquote>
+<p>快捷键 ：  ctrl + shift + `</p>
+</blockquote>
+<h2 id="代码块"><a href="#代码块" class="headerlink" title="代码块"></a>代码块</h2><blockquote>
+<p>```   对应语言     就生成对应语言的代码块</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Hello</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(args[])</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello world!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="杂项"><a href="#杂项" class="headerlink" title="杂项"></a>杂项</h1><ul>
+<li>如果上一行内容有一些格式  比如说  列表格式  或者 引用…   直接回车另起一行时连上一行的格式也会复制下来，这时候如果再按一次回车格式才会消失。</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">- 这是第一行  (无序列表)</span><br><span class="line">  这是第二行  (回车进入第二行第二行也是无序列表)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ctrl + /   进入源码模式</li>
+</ul>
+<blockquote>
+<p>(持续更新中…..)</p>
+</blockquote>
+<p>本文只是展示了一些Markdown中常用的语法以及功能，后续还会持续地更新</p>
+]]></content>
+      <categories>
+        <category>Efficiency</category>
+      </categories>
+      <tags>
+        <tag>MarkDown</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>QQ传输文件的换原</title>
+    <url>/2022/10/06/QQ%E4%BC%A0%E8%BE%93%E6%96%87%E4%BB%B6%E7%9A%84%E8%BF%98%E5%8E%9F/</url>
+    <content><![CDATA[<p>本篇文章主要是复现了QQ传输文件的换原：手机端向电脑传输一个文件，然后使用wireshark抓取数据包，通过winhex来分析该文件并实现换原。</p>
+<h1 id="前提条件"><a href="#前提条件" class="headerlink" title="前提条件"></a>前提条件</h1><p>移动端与手机端需连接同一热点(在同一子网下)，登录同一个QQ，移动端向电脑端发送一个文件(这里使用照片为例)。</p>
+<h1 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h1><h2 id="一、知道数据源头-数据去向"><a href="#一、知道数据源头-数据去向" class="headerlink" title="一、知道数据源头/数据去向"></a>一、知道数据源头/数据去向</h2><p>知道数据源头和数据去向能方便我们去抓取数据包，手机端发送数据给电脑，所以数据源头是我们手机，那我们就需要知道手机连接该网络下的ip地址。通过手机的WLAN设置里可以查看到手机在该网络下的ip地址：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118223548852.png" alt="image-20221118223548852"></p>
+<p>查询得到手机在该网络下的ip地址<strong>10.33.33.145</strong>，这就是数据源头(ip.src)，而数据去向就是我们电脑端(ip.dst)的ip地址。</p>
+<h2 id="二、通过wireshark进行抓包"><a href="#二、通过wireshark进行抓包" class="headerlink" title="二、通过wireshark进行抓包"></a>二、通过wireshark进行抓包</h2><p>我们在wireshark中设置过滤条件为：</p>
+<blockquote>
+<p>ip.addr == 10.33.33.145</p>
+</blockquote>
+<p>表示的是对源或者目的地址为10.33.33.145的包的过滤，即抓取满足源或者目的地址的ip地址是10.33.33.145的包。</p>
+<p>选择过滤条件后开始，手机端向电脑端通过QQ发送一个文件：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118223845029.png" alt="image-20221118223845029"></p>
+<p>通过wireshark捕获到一个http请求数据包，我们对这个数据部进行tcp流追踪：</p>
+<blockquote>
+<p>鼠标右键 -&gt; 追踪流 -&gt; TCP流</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118224204721.png" alt="image-20221118224204721"></p>
+<p>在得到的数据中，选择手机端向客户端发送的(10.33.33.145:8083-&gt;10.33.55.156:56886)，然后选择以原始数据来展现数据。</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118224406029.png" alt="image-20221118224406029"></p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118224427116.png" alt="image-20221118224427116"></p>
+<p>得到如下手机端向电脑端发送的数据：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118224718945.png" alt="image-20221118224718945"></p>
+<p>通过wireshark数据的分析，我们可以看出手机端向电脑端发送的文件是.png文件(文章中没有体现出来)，于是我们将此段数据保存到电脑中，并命名为test.png（保证是.png后缀即可）。</p>
+<blockquote>
+<p>另存为 -&gt; 文件命名 -&gt; 保存</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118225351985.png" alt="image-20221118225351985"></p>
+<p>之后我们直接打开test.png文件，发现无法正常打开。分析可能是在wireshark保存的数据流有问题(QQ传输文件的机制，可能对信息进行了加密)，于是我们使用winhex打开该文件进行分析。</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118225606235.png" alt="image-20221118225606235"></p>
+<h2 id="三、winhex进行数据分析"><a href="#三、winhex进行数据分析" class="headerlink" title="三、winhex进行数据分析"></a>三、winhex进行数据分析</h2><blockquote>
+<p>winhex是在Windows下执行的<strong>十六进制</strong>编辑软件，此软件功能很强大，有完好的分区管理功能和文件管理功能。能自己主动分析分区链和文件簇链。能对硬盘进行不同方式不同程度的备份。甚至克隆整个硬盘；它可以编辑不论什么一种文件类型的二进制内容（用十六进制显示）其磁盘编辑器可以编辑物理磁盘或逻辑磁盘的随意扇区。是<strong>手工恢复数据</strong>的首选工具软件。</p>
+</blockquote>
+<p>我们使用winhex打开test.png文件，得到如下：</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118225823402.png" alt="image-20221118225823402"></p>
+<p>发现打开的test.png十六进制文件是 <strong>48 54 54 50</strong> 开头，我们通过查询发现，png格式的16进制文件的开头为<strong>89 50 4E 47</strong>，所以这里的文件格式发送了错误。</p>
+<p>我们在该十六进制文件中找到<strong>89 50 4E 47</strong>的位置，将它前面所有的十六进制数都删除掉：</p>
+<blockquote>
+<p>选中数据 -&gt; 鼠标右键 -&gt; 编辑 -&gt; 移除</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118230351357.png" alt="image-20221118230351357"></p>
+<p>这样就得到以<strong>89 50 4E 47</strong>开头的十六进制文件了，正好符合.png文件的格式。</p>
+<p>我们把它重新保存</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118230659643.png" alt="image-20221118230659643"></p>
+<p>发现可以正常打开了，而且内容与原发送内容一致，说明使用成功！</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221118230724439.png" alt="image-20221118230724439"></p>
+]]></content>
+      <categories>
+        <category>渗透</category>
+      </categories>
+      <tags>
+        <tag>WireShark</tag>
+        <tag>WinHex</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>桥接模式、NAT模式和仅主机模式</title>
+    <url>/2022/10/06/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F%E3%80%81NAT%E6%A8%A1%E5%BC%8F%E5%92%8C%E4%BB%85%E4%B8%BB%E6%9C%BA%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<h2 id="虚拟机的网络"><a href="#虚拟机的网络" class="headerlink" title="虚拟机的网络"></a>虚拟机的网络</h2><p>​        在 <a href="https://so.csdn.net/so/search?q=VMware&spm=1001.2101.3001.7020">VMware</a> 中，虚拟机的网络连接主要是由 VMware 创建的虚拟交换机（也叫做虚拟网络）负责实现的，VMware 可以根据需要创建多个虚拟网络。</p>
+<p>​        在 Windows 系统的主机上，VMware 最多可以创建 20 个虚拟网络，每个虚拟网络可以连接任意数量的虚拟机网络设备；在 Linux 系统的主机上，VMware 最多可以创建 255 个虚拟网络，但每个虚拟网络仅能连接 32个 虚拟机网络设备。VMware 的虚拟网络都是以 “VMnet+数字” 的形式来命名的，例如 VMnet0、VMnet1、VMnet2……以此类推（在 Linux 系统的主机上，虚拟网络的名称均采用小写形式，例如 vmnet0 )。</p>
+<p>​        当我们安装 VMware 时，VMware 会自动为 3 种网络连接模式各自创建 1 个虚拟机网络**：VMnet0 (桥接模式)<strong>、</strong>VMnet8 (NAT模式)<strong>、</strong>VMnet1 (仅主机模式)**。此外，我们也可以根据需要自行创建更多的虚拟网络。</p>
+<p>​        <img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221120203829974.png" alt="image-20221120203829974"></p>
+<h2 id="桥接模式、NAT模式、仅主机模式"><a href="#桥接模式、NAT模式、仅主机模式" class="headerlink" title="桥接模式、NAT模式、仅主机模式"></a>桥接模式、NAT模式、仅主机模式</h2><h3 id="bridged（桥接模式）"><a href="#bridged（桥接模式）" class="headerlink" title="bridged（桥接模式）"></a>bridged（桥接模式）</h3><pre><code>   VMware 桥接模式，也就是将虚拟机的虚拟网络适配器与主机的物理网络适配器进行交接，虚拟机中的虚拟网络适配器可通过主机中的物理网络适配器直接访问到外部网络。简而言之，这就好像在局域网中添加了一台新的、独立的计算机一样。因此，**虚拟机也会占用局域网中的一个 IP 地址**，并且可以和其他终端进行相互访问。
+</code></pre>
+<p>​        桥接模式网络连接支持有线和无线主机网络适配器。如果你想把虚拟机当做一台<strong>完全独立的计算机</strong>看待，并且允许它和其他终端一样的进行网络通信，那么桥接模式通常是虚拟机访问网络的最简单途径。</p>
+<p>​        <strong>桥接模式下，虚拟机的网段必须和物理机的保持一致。</strong></p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/20201106213239445.png" alt="img"></p>
+<p>​        </p>
+<h3 id="NAT（网络地址转换模式）"><a href="#NAT（网络地址转换模式）" class="headerlink" title="NAT（网络地址转换模式）"></a>NAT（网络地址转换模式）</h3><p>​        NAT，是 Network Address Translation 的缩写，意即网络地址转换。NAT 模式也是 VMware 创建虚拟机的默认网络连接模式。使用NAT模式网络连接时，VMware会在主机上建立单独的专用网络，用以在主机和虚拟机之间相互通信。虚拟机向外部网络发送的请求数据 “包裹”，都会交由 NAT 网络适配器加上 “特殊标记” 并以主机的名义转发出去，外部网络返回的响应数据 “包裹”，也是先由主机接收，然后交由 NAT 网络适配器根据 “特殊标记” 进行识别并转发给对应的虚拟机，因此，<strong>虚拟机在外部网络中不必具有自己的IP地址</strong>。从外部网络来看，<strong>虚拟机和主机在共享一个IP地址，默认情况下，外部网络终端也无法访问到虚拟机</strong>。</p>
+<pre><code>    此外，**在一台主机上只允许有一个 NAT 模式的虚拟网络。**因此，同一台主机上的多个采用 NAT 模式网络连接的虚拟机也是**可以相互访问**的。
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/20201106205013117.png" alt="img"></p>
+<p>​        </p>
+<p>​        NAT模式下kali可以ping通同为NAT模式下的其他主机(Metasplotable2)</p>
+<p><img src="https://raw.githubusercontent.com/ppxssxs/Picgo-Core/main/Img/image-20221120212029231.png" alt="image-20221120212029231"></p>
+<h3 id="host-only（仅主机模式）"><a href="#host-only（仅主机模式）" class="headerlink" title="host-only（仅主机模式）"></a>host-only（仅主机模式）</h3><pre><code>  仅主机模式，是一种比 NAT 模式更加封闭的的网络连接模式，它将创建完全包含在主机中的专用网络。**仅主机模式的虚拟网络适配器仅对主机可见，并在虚拟机和主机系统之间提供网络连接**。相对于 NAT 模式而言，仅主机模式不具备 NAT 功能，因此在默认情况下，使用仅主机模式网络连接的虚拟机无法连接到 Internet (在主机上安装合适的路由或代理软件，或者在 Windows 系统的主机上使用 Internet 连接共享功能，仍然可以让虚拟机连接到 Internet 或其他网络)。
+</code></pre>
+<p>​        在同一台主机上可以创建多个仅主机模式的虚拟网络，如果<strong>多个虚拟机处于同一个仅主机模式网络中，那么它们之间是可以相互通信的；如果它们处于不同的仅主机模式网络，则默认情况下无法进行相互通信</strong>（可通过在它们之间设置路由器来实现相互通信）。</p>
+<blockquote>
+<p>形象的说：<br>        <strong>桥接模式的虚拟机</strong>，就像一个在路由器”民政局”那里 “上过户口” 的成年人，有自己单独的居住地址，虽然和主机住在同一个大院里，但好歹是有户口的人，可以大摇大摆地直接和外面通信。<br>        <strong>NAT模式的虚拟机</strong>，纯粹就是一个没上过户口的黑户，路由器 “民政局” 根本不知道有这么个人，自然也不会主动和它通信。即使虚拟机偶尔要向外面发送点的信件，都得交给主机以主机的名义转发出去，主机还专门请了一位叫做 NAT 的老大爷来专门负责这些虚拟机的发信、收信事宜。<br>        <strong>仅主机模式的虚拟机</strong>，纯粹是一个彻彻底底的黑奴，不仅没有户口、路由器 “民政局” 不知道这么号人，还被主机关在小黑屋里，连信件也不准往外发。</p>
+</blockquote>
+<hr>
+<hr>
+<p>参考文章：<a href="https://blog.csdn.net/swadian2008/article/details/109518783">(15条消息) 桥接模式、NAT模式和仅主机模式_swadian2008的博客-CSDN博客</a></p>
+]]></content>
+      <categories>
+        <category>渗透</category>
+      </categories>
+      <tags>
+        <tag>VMware</tag>
+      </tags>
+  </entry>
+</search>
